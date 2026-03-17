@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/QM_LockedFridge.csproj" />
+  </Folder>
+</Solution>

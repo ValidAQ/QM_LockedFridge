@@ -1,0 +1,118 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>Library</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SteamId Condition="'$(SteamId)'=='' and Exists('../SteamWorkshopId.txt')">$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../SteamWorkshopId.txt').Trim())</SteamId>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GAME_NAME>Quasimorph</GAME_NAME>
+    <GAME_PATH Condition="!Exists('$(GAME_PATH)')">$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App $(GAME_STEAM_ID)', 'InstallLocation', null, RegistryView.Registry64, RegistryView.Registry32))</GAME_PATH>
+    <_SteamLibraryPath>$([MSBuild]::GetRegistryValueFromView('HKEY_CURRENT_USER\SOFTWARE\Valve\Steam', 'SteamPath', null, RegistryView.Registry32))</_SteamLibraryPath>
+    <GAME_PATH Condition="!Exists('$(GAME_PATH)') AND '$(_SteamLibraryPath)' != ''">$(_SteamLibraryPath)\steamapps\common\$(GAME_NAME)</GAME_PATH>
+    <GAME_PATH Condition="!Exists('$(GAME_PATH)')">C:\Program Files\Steam\steamapps\common\$(GAME_NAME)</GAME_PATH>
+    <GAME_PATH Condition="!Exists('$(GAME_PATH)')">C:\Program Files (x86)\Steam\steamapps\common\$(GAME_NAME)</GAME_PATH>
+    <GAME_PATH Condition="!Exists('$(GAME_PATH)')">D:\SteamLibrary\steamapps\common\$(GAME_NAME)</GAME_PATH>
+    <WorkshopRoot>$([System.IO.Path]::GetFullPath('$(GAME_PATH)\..\..\workshop\content\2059170\'))</WorkshopRoot>
+    <WorkshopPath>$(WorkshopRoot)$(SteamId)\</WorkshopPath>
+    <DeployPath Condition="'$(SteamId)'!=''">$(WorkshopPath)</DeployPath>
+    <ManagedPath>$(GAME_PATH)\$(GAME_NAME)_Data\Managed\</ManagedPath>
+    <PackageFolder>$(ProjectDir)../package/</PackageFolder>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp" publicize="true">
+      <HintPath>$(ManagedPath)Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(ManagedPath)UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(ManagedPath)UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(ManagedPath)UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(ManagedPath)UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(ManagedPath)UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(ManagedPath)UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Optional: Mod Configuration Menu (MCM) integration.
+       MCM.dll is located by checking, in order:
+         1. src/lib/MCM.dll  (manual download)
+         2. The Steam workshop folder (present when MCM is subscribed on Steam)
+       When found, the MCM_PRESENT symbol is defined, enabling McmIntegration.cs.
+       No action needed if you don't want MCM support. -->
+  <PropertyGroup>
+    <McmDllPath Condition="Exists('$(ProjectDir)lib\MCM.dll')">$(ProjectDir)lib\MCM.dll</McmDllPath>
+    <McmDllPath Condition="'$(McmDllPath)' == '' AND Exists('$(WorkshopRoot)3469678797\MCM.dll')">$(WorkshopRoot)3469678797\MCM.dll</McmDllPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(McmDllPath)' != ''">
+    <DefineConstants>$(DefineConstants);MCM_PRESENT</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(McmDllPath)' != ''">
+    <Reference Include="MCM">
+      <HintPath>$(McmDllPath)</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" ExcludeAssets="runtime" />
+    <PackageReference Include="Lib.harmony" Version="2.3.3" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" ExcludeAssets="runtime" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" ExcludeAssets="runtime" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <Target Name="ModBaseItems" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="../modmanifest.json" DestinationFolder="$(TargetDir)" />
+    <Copy Condition="Exists('../media/thumbnail.png')" SourceFiles="../media/thumbnail.png" DestinationFolder="$(TargetDir)" />
+  </Target>
+
+  <Target Name="NoDeployMessage" Condition="'$(DeployPath)'==''" AfterTargets="PostBuildEvent">
+    <Message Importance="high" Text="SteamId is not set. Skipping workshop-folder deployment." />
+  </Target>
+
+  <Target Name="SteamWorkshopDeploy" Condition="'$(DeployPath)'!=''" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <BuildSource Include="$(TargetDir)/*.*" />
+    </ItemGroup>
+    <MakeDir Directories="$(DeployPath)" ContinueOnError="true" />
+    <Copy SourceFiles="@(BuildSource)" DestinationFolder="$(DeployPath)" />
+    <WriteLinesToFile File="$(MSBuildProjectDirectory)/.vs/.workshop_path.tmp" Lines="$(WorkshopPath)" Overwrite="true" />
+  </Target>
+
+  <ItemGroup>
+    <Reference Update="System">
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

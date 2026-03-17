@@ -1,0 +1,11 @@
+{
+	"UniqueModName": "valid_QM_LockedFridge",
+	"Assemblies": [
+		"QM_LockedFridge.dll"
+	],
+	"Dependencies": [],
+    "SteamTags": [
+        "Quality of Life",
+        "0.9.9"
+    ]
+}

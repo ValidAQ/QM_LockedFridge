@@ -1,0 +1,17 @@
+# Visual Studio files
+src/.vs/
+src/bin
+src/obj
+# The project is set up to build directly from .csproj, ignore solution files
+*.sln
+
+# VS Code files
+*.code-workspace
+.vscode/
+
+# Local libs for dependency integration (don't commit third-party DLLs)
+src/lib/
+
+# Local files
+build/
+README.steam.txt
