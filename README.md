@@ -1,6 +1,6 @@
 # Locked Fridge
 
-Locked Fridge is a Quasimorph mod that improves the ship's cryochamber cargo management.
+Quasimorph mod that improves the ship's cryochamber cargo management.
 
 Don't you hate it when you're tidying up your Magnum after a good haul, and all the spoilable items spill out of your cryochamber to other cargo holds?
 
