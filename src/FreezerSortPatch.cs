@@ -97,10 +97,77 @@ namespace QM_LockedFridge
                 }
             }
 
+            // Oversized-stack drain (Unlimited Cargo Stacks interop)
+            //
+            // UCS allows cargo stacks up to 9999 but deliberately keeps the fridge at vanilla slot limits.
+            // Its stack move logic moves exactly ONE slot's worth per AddCargo call and returns the
+            // remainder to this tab, so a single pass leaves most of a huge item stack.
+            // To make it work with our fridge routing, keep calling AddCargo until the fridge is full or nothing routable remains.
+            // That processes an oversized stack in one go, and the final sort call will pack the leftovers into the active tab.
+            // Without UCS no stack ever exceeds a slot, so the loop does nothing.
+            if (hasFridge)
+            {
+                int safety = 0;
+                while (safety++ < 1000)
+                {
+                    BasePickupItem next = null;
+                    foreach (BasePickupItem candidate in activeShipCargo.Items)
+                    {
+                        if (IsRoutableToFridge(candidate, hasFridge))
+                        {
+                            next = candidate;
+                            break;
+                        }
+                    }
+                    if (next == null)
+                        break;
+
+                    int fridgeBefore = FridgeTotalCount(magnumCargo);
+                    MagnumCargoSystem.AddCargo(
+                        magnumCargo, spaceTime, next,
+                        specificStorage: magnumCargo.FridgeStorage,
+                        splittedItem: false,
+                        tabFilter: false);
+
+                    // No fridge growth - full or unroutable.
+                    // The item either stayed (fallback target -> this tab) or moved to tab 0.
+                    if (FridgeTotalCount(magnumCargo) == fridgeBefore)
+                        break;
+                }
+            }
+
             // Sort the active (non-fridge) tab after redistribution.
             activeShipCargo.SortWithExpandByTypeAndName(spaceTime);
             __instance.RefreshView();
             return false;
+        }
+
+        /// <summary>
+        /// The fridge routing condition, shared by the main pass and the oversized-stack drain loop
+        /// (same predicate, evaluated on live tab contents in the drain loop).
+        /// </summary>
+        private static bool IsRoutableToFridge(BasePickupItem item, bool hasFridge)
+        {
+            if (!hasFridge || item == null)
+                return false;
+
+            var itemRecord = Data.Items.GetSimpleRecord<ItemRecord>(item.Id);
+            int itemClassValue = (int)itemRecord.ItemClass;
+            bool isQuasiItem = itemClassValue == (int)ItemClass.QuasiPact;
+
+            return Data.ItemExpire.GetRecord(item.Id) != null && !isQuasiItem;
+        }
+
+        /// <summary>
+        /// Total stack count across all fridge slots (progress metric for
+        /// the drain loop: Merge/Place always raise it when they accept a piece).
+        /// </summary>
+        private static int FridgeTotalCount(MagnumCargo magnumCargo)
+        {
+            int total = 0;
+            foreach (BasePickupItem item in magnumCargo.FridgeStorage.Items)
+                total += item.StackCount;
+            return total;
         }
     }
 }
