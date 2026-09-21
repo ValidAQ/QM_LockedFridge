@@ -23,6 +23,12 @@ namespace QM_LockedFridge
         /// Called by the game after all configs have been loaded.
         /// Initializes mod state, loads config from disk, and applies Harmony patches.
         /// </summary>
+        /// <summary>Mod configuration loaded from disk on startup.</summary>
+        public static ModConfig Config { get; private set; }
+
+        /// <summary>Resolves standard mod directory paths (config, persistence, etc.).</summary>
+        public static ConfigDirectories ConfigDirectories { get; } = new ConfigDirectories();
+
         [Hook(ModHookType.AfterConfigsLoaded)]
         public static void AfterConfig(IModContext context)
         {
@@ -30,7 +36,12 @@ namespace QM_LockedFridge
 
             try
             {
+                // Load config + localization before PatchAll — the sort patch
+                // reads the routing settings on every sort.
+                Config = ModConfig.LoadConfig(ConfigDirectories.ConfigPath);
+                LoadLocalization();
                 new Harmony(HarmonyId).PatchAll(Assembly.GetExecutingAssembly());
+                McmIntegration.RegisterIfPresent();
                 Logger.Log("Harmony patches applied.");
             }
             catch (Exception ex)
@@ -38,6 +49,18 @@ namespace QM_LockedFridge
                 Logger.LogError("Failed to apply Harmony patches.");
                 Logger.LogException(ex);
             }
+        }
+
+        /// <summary>
+        /// Loads localization entries (e.g. the Configure-screen toggle label)
+        /// from the embedded localization JSON.
+        /// </summary>
+        private static void LoadLocalization()
+        {
+            LocalizationSupport.LocalizationFileLoader.LoadFromEmbeddedJson(
+                "QM_LockedFridge.localization.json",
+                Assembly.GetExecutingAssembly(),
+                Logger.LogError);
         }
     }
 }

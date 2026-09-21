@@ -61,6 +61,11 @@ namespace QM_LockedFridge
 
             bool hasFridge = magnumProg.HasStoreFridge;
 
+            // Routing gate: global MCM default gated by this tab's Configure-screen
+            // toggle (per-tab override, keyed by tab index in the mod config).
+            bool routingEnabled = Plugin.Config != null
+                && Plugin.Config.RoutingEnabledForTab(tabIndex);
+
             foreach (BasePickupItem item in items)
             {
                 // Route perishables to the fridge when it is available.
@@ -74,7 +79,7 @@ namespace QM_LockedFridge
                 // being normally perishable. Not sure why.
                 bool isQuasiItem = itemClassValue == (int)ItemClass.QuasiPact;
 
-                bool filterCondition = hasFridge && Data.ItemExpire.GetRecord(item.Id) != null && !isQuasiItem;
+                bool filterCondition = routingEnabled && hasFridge && Data.ItemExpire.GetRecord(item.Id) != null && !isQuasiItem;
 
                 if (filterCondition)
                 {
@@ -105,7 +110,7 @@ namespace QM_LockedFridge
             // To make it work with our fridge routing, keep calling AddCargo until the fridge is full or nothing routable remains.
             // That processes an oversized stack in one go, and the final sort call will pack the leftovers into the active tab.
             // Without UCS no stack ever exceeds a slot, so the loop does nothing.
-            if (hasFridge)
+            if (hasFridge && routingEnabled)
             {
                 int safety = 0;
                 while (safety++ < 1000)

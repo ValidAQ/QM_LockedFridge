@@ -64,6 +64,13 @@
     </Reference>
   </ItemGroup>
 
+  <!-- Embedded localization file (Configure-screen toggle label). -->
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\QM_LockedFridge.localization.json">
+      <LogicalName>QM_LockedFridge.localization.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
   <!-- Optional: Mod Configuration Menu (MCM) integration.
        MCM.dll is located by checking, in order:
          1. src/lib/MCM.dll  (manual download)

@@ -19,6 +19,18 @@ This mod patches the following game classes. Other mods that patch the same meth
 | Class                      | Method                     | Patch type           |
 | -------------------------- | -------------------------- | -------------------- |
 | `MGSC.ScreenWithShipCargo` | `SortArsenalButtonOnClick` | Prefix (replacement) |
+| `MGSC.ManageCargoTabScreen`| `Configure`                | Postfix (adds one `QToggle`) |
+
+### Auto-sorting configuration
+
+The auto-sorting of perishable items into cryochamber can be turned off granularly.
+
+**Global default**: MCM setting "Auto-sort perishables to cryochamber" (default **on**), also persisted in `Quasimorph_ModConfigs/QM_LockedFridge/config.json` for MCM-less installs.
+
+**Per-tab**: the cargo tab's configuration window now has a "Auto-sort perishables to cryochamber" check box on the bottom.
+Unchecking it results in the specific cargo tab being unaffected by the auto-sorting logic.
+
+Config is shared across saves.
 
 ### Unlimited Cargo Stacks compatibility
 
@@ -31,6 +43,9 @@ The sorting logic therefore processes the active tab in slot-sized pieces: after
 Source code is available on GitHub at https://github.com/validaq/QM_LockedFridge
 
 ## Changelog
+
+### 1.1.0
+* Configurable auto-sorting: global mod config toggle (default on) plus a per-tab option.
 
 ### 1.0.1
 * UCS compatibility: sorting with **Unlimited Cargo Stacks** moves everything the cryochamber can hold in one press instead of one stack per press.
