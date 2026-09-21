@@ -63,6 +63,11 @@ namespace QM_LockedFridge
         {
             var settings = new JsonSerializerSettings { Formatting = Formatting.Indented };
 
+            // First run: the mod's folder under Quasimorph_ModConfigs/ may not exist yet.
+            string configDir = Path.GetDirectoryName(configPath);
+            if (!string.IsNullOrEmpty(configDir) && !Directory.Exists(configDir))
+                Directory.CreateDirectory(configDir);
+
             if (File.Exists(configPath))
             {
                 try

@@ -11,7 +11,8 @@
 param()
 
 # Adjust the path to MarkdownToSteam.exe as needed
-$ToolPath = 'C:\Data\Code\Modding\Quasimorph\MarkdownToSteam\MarkdownToSteam.exe'
+# MarkdownToSteam ships with the workspace: Tools/MarkdownToSteam/
+$ToolPath = 'C:\Data\Code\Modding\Quasimorph\Tools\MarkdownToSteam\MarkdownToSteam.exe'
 $Root     = Resolve-Path (Join-Path $PSScriptRoot '..')
 $ReadMe   = Join-Path $Root 'README.md'
 $Output   = Join-Path $Root 'README.steam.txt'
