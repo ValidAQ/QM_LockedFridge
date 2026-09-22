@@ -35,9 +35,9 @@ Config is shared across saves.
 ### Unlimited Cargo Stacks compatibility
 
 Compatible as of 1.0.1.
-UCS raises ship-cargo stack limits to 9999 but intentionally keeps the Cryochamber at vanilla slot limits, so a single cargo item can hold far more than one fridge slot accepts.
+UCS raises ship-cargo stack limits to 9999 but intentionally keeps the cryochamber at vanilla slot limits, so a single cargo stack can hold far more than one chamber slot accepts.
 
-The sorting logic therefore processes the active tab in slot-sized pieces: after the normal pass, routing continues while the fridge keeps accepting pieces (each iteration moves one slot's worth and UCS returns the remainder to the tab), until the fridge is full or nothing routable remains. Without UCS, the drain logic does nothing, as no stack ever exceeds a slot.
+The sorting logic therefore processes the active tab in slot-sized pieces: after the normal sorting pass, loop over tab contents while the cryochamber still has space, until it's full or nothing sortable remains. Without UCS, the loop does nothing, as no stack ever exceeds a slot.
 
 # Source Code
 Source code is available on GitHub at https://github.com/validaq/QM_LockedFridge
